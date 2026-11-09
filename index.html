@@ -3,26 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Network details sharing demo</title>
+<title>Continue to YouTube</title>
 <style>
 :root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#10131a;color:#eef2f7;font:16px/1.5 system-ui,sans-serif;padding:24px}.card{width:min(100%,560px);background:#1b2230;border:1px solid #394456;border-radius:18px;padding:26px;box-shadow:0 18px 55px #0006}h1{font-size:1.5rem;margin:0 0 10px}p{color:#c3ccda}.notice{background:#111823;border-radius:12px;padding:14px;margin:18px 0}.notice li{margin:6px 0}button{width:100%;border:0;border-radius:10px;padding:14px;font-weight:700;font-size:1rem;background:#70a7ff;color:#081321;cursor:pointer}button:disabled{opacity:.55;cursor:wait}.secondary{background:transparent;color:#d8e1ee;border:1px solid #59677c;margin-top:10px}.small{font-size:.86rem;color:#9eabbc}.result{overflow-wrap:anywhere;margin-top:16px}
 </style>
 </head>
 <body>
 <main class="card">
-<h1>Network details sharing demo</h1>
-<p>This page demonstrates how a website can request permission to share basic network information with its owner.</p>
+<h1>Continue to YouTube</h1>
+<p>Tap below to continue to YouTube.</p>
 <div class="notice">
-<strong>If you choose to agree, this page will:</strong>
-<ul>
-<li>Request your public IP address from an IP lookup service.</li>
-<li>Retrieve approximate city/region/country and ISP, if available.</li>
-<li>Send those details to the page owner's private Supabase database.</li>
-</ul>
-<p class="small">This is not your precise GPS location. IP-based location can be inaccurate. The page does not make the lookup or send anything until you press the consent button below. Do not agree unless you understand and accept this.</p>
+<strong>Privacy notice</strong>
+<p>By tapping “Agree &amp; continue”, you agree that this page will collect your public IPv4 address and send it to the page owner’s private database. After it is saved, you’ll be redirected to YouTube. Your IP address can reveal your internet provider and approximate location.</p>
 </div>
-<button id="agree">I agree — share my network details</button>
-<button id="decline" class="secondary">No, don't share</button>
+<button id="agree">Agree &amp; continue to YouTube</button>
+<button id="decline" class="secondary">No, cancel</button>
 <div id="status" class="result" role="status" aria-live="polite"></div>
 <p class="small">You can close this page without sharing anything. No account sign-in is required.</p>
 </main>
@@ -68,7 +63,8 @@ agree.addEventListener("click", async () => {
     });
     const result = await saveResponse.json().catch(() => ({}));
     if (!saveResponse.ok || !result.ok) throw new Error(result.error || "Could not save the IPv4 address.");
-    statusEl.textContent = "Your public IPv4 address was shared successfully with the page owner: " + ipv4;
+    statusEl.textContent = "Your public IPv4 address (" + ipv4 + ") was shared with the page owner. Redirecting to YouTube…";
+    setTimeout(() => { window.location.href = "https://www.youtube.com/"; }, 1800);
   } catch (error) {
     statusEl.textContent = "Sharing failed: " + (error.message || "Unknown error") + ". No success was reported.";
     agree.disabled = false;
