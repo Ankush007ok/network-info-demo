@@ -1,1 +1,1 @@
-# network-info-demo.
+# network-info-demo
