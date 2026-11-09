@@ -40,21 +40,15 @@ decline.addEventListener("click", () => {
 agree.addEventListener("click", async () => {
   agree.disabled = true;
   decline.disabled = true;
-  statusEl.textContent = "Consent received. Checking whether this connection supports public IPv4…";
+  statusEl.textContent = "Consent received. Checking your public IPv4 address…";
   try {
     const ipv4Response = await fetch("https://api4.ipify.org?format=json");
-    if (!ipv4Response.ok) throw new Error("A public IPv4 address is not available on this connection.");
+    if (!ipv4Response.ok) throw new Error("Could not retrieve public IPv4.");
     const ipv4Data = await ipv4Response.json();
     const ipv4 = ipv4Data.ip;
     if (!ipv4 || !/^\d{1,3}(\.\d{1,3}){3}$/.test(ipv4)) {
-      throw new Error("The IPv4 service did not return a valid IPv4 address. Your network may be IPv6-only.");
+      throw new Error("The IPv4 service did not return a valid IPv4 address.");
     }
-
-    statusEl.textContent = "IPv4 found. Looking up its approximate network details…";
-    const lookupResponse = await fetch("https://ipapi.co/" + encodeURIComponent(ipv4) + "/json/");
-    if (!lookupResponse.ok) throw new Error("The IPv4 location lookup service did not respond.");
-    const details = await lookupResponse.json();
-    if (details.error) throw new Error(details.reason || "Could not look up details for this IPv4 address.");
 
     const saveResponse = await fetch(SUPABASE_URL + "/functions/v1/record-consented-network-share", {
       method: "POST",
@@ -66,17 +60,17 @@ agree.addEventListener("click", async () => {
       body: JSON.stringify({
         consent: true,
         ip: ipv4,
-        city: details.city || null,
-        region: details.region || null,
-        country: details.country_name || details.country || null,
-        isp: details.org || null
+        city: null,
+        region: null,
+        country: null,
+        isp: null
       })
     });
     const result = await saveResponse.json().catch(() => ({}));
-    if (!saveResponse.ok || !result.ok) throw new Error(result.error || "Could not save the shared details.");
-    statusEl.textContent = "Your IPv4 network details were shared successfully with the page owner. IPv4: " + ipv4 + " · Approximate location: " + [details.city, details.region, details.country_name].filter(Boolean).join(", ");
+    if (!saveResponse.ok || !result.ok) throw new Error(result.error || "Could not save the IPv4 address.");
+    statusEl.textContent = "Your public IPv4 address was shared successfully with the page owner: " + ipv4;
   } catch (error) {
-    statusEl.textContent = "Sharing failed: " + (error.message || "Unknown error") + " No success was reported. This connection may not have public IPv4 access.";
+    statusEl.textContent = "Sharing failed: " + (error.message || "Unknown error") + ". No success was reported.";
     agree.disabled = false;
     decline.disabled = false;
   }
